@@ -25,6 +25,8 @@ fn main() {
 
     c.run();
     c.dump(25, 5);
+
+    std::io::stdin().read(&mut [0]).unwrap();
 }
 
 /*
