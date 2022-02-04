@@ -48,6 +48,7 @@ fn main() {
 * 0x8 = div
 
 * 0x10 = print mode, reg
+* 0x15 = constant
 
 ? Print_Modes 
     0x0 = print reg

@@ -20,6 +20,7 @@ impl VM {
         }
     }
     pub fn new_constant(&mut self, name: &str) {
+        println!("New constant: {}", name);
         self.constants.push(name.to_string());
     }
     pub fn dump(&self, to: usize, reg: usize) {
@@ -153,7 +154,25 @@ impl VM {
                         _ => {}
                     }
 
-                    println!("print mode({0}) reg({1})", mode, register);
+                    println!("print mode({0}) {1}", mode, register);
+                },
+                0x15 => {
+                    let mut storage: Vec<i32> = Vec::new();
+
+                    while self.pc < self.memory.len() {
+                        let op = self.next();
+
+                        if op == 0x15 {
+                            self.step();
+                            break;
+                        }
+
+                        storage.push(op);
+                    }
+
+                    let constant: String = storage.iter().map(|&x| x as u8 as char).collect();
+
+                    self.new_constant(constant.as_str());
                 },
                 _ => {
                     println!("Unknown opcode: 0x{:x}", op);
