@@ -16,13 +16,6 @@ fn main() {
 
     c.load(converted.as_slice());
 
-    /*c.load(&[
-        0x2, 100, 0,
-        0x2, 200, 1,
-        0x5, 0, 1,
-        0x10, 0x0, 0
-    ]);*/
-
     c.run();
     c.dump(25, 5);
 
@@ -47,7 +40,10 @@ fn main() {
 * 0x7 = mul
 * 0x8 = div
 
+* 0x9 = function constant
+
 * 0x10 = print mode, reg
+* 0x11 = function_call constant
 * 0x15 = constant
 
 ? Print_Modes 

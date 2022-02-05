@@ -1,8 +1,11 @@
+use std::collections::HashMap;
+
 pub struct VM {
     pub memory: [i32; 4096],
     pub registers: [i32; 1000],
     pub constants: Vec<String>,
-    pub pc: usize
+    pub functions: HashMap<String, Vec<i32>>,
+    pub pc: usize,
 }
 
 impl VM { 
@@ -11,6 +14,7 @@ impl VM {
             memory: [0; 4096],
             registers: [0; 1000],
             constants: Vec::new(),
+            functions: HashMap::new(),
             pc: 0,
         };
     }
@@ -51,10 +55,15 @@ impl VM {
     }
     fn step(&mut self) {
         self.pc += 1;
+        //println!("PC: {}", self.pc);
     }
     fn next(&mut self) -> i32 {
-        self.step();
-        return self.memory[self.pc];
+        if self.pc < self.memory.len() - 1 {
+            self.step();
+            return self.memory[self.pc];
+        } else {
+            return 0;
+        }
     }
     fn setr(&mut self, register: usize, value: i32) {
         self.registers[register] = value;
@@ -62,8 +71,6 @@ impl VM {
     pub fn run(&mut self) {
         while self.pc < self.memory.len() {
             let op = self.memory[self.pc];
-
-            //println!("PC: 0x{:x}", self.pc);
 
             match op {
                 0x1 | 0x0 => {
@@ -140,6 +147,26 @@ impl VM {
 
                     println!("div reg({0}), reg({1})", register_a, register_b);
                 },
+                0x9 => {
+                    let nxt = self.next();
+                    let name = self.constants[nxt as usize].clone();
+
+                    let current_pc = self.pc;
+                    println!("fn dec {}", name);
+
+                    let mut body: Vec<i32> = Vec::new();
+                    while self.pc < self.memory.len() {
+                        let op = self.next();
+
+                        if op == 0x9 {
+                            self.step();
+                            self.functions.insert(name.clone(), body);
+                            break;
+                        }
+                        
+                        body.push(op);
+                    }
+                },
                 0x10 => {
                     let mode = self.next();
                     let register = self.next() as usize;
@@ -149,12 +176,28 @@ impl VM {
                             println!("{}", self.registers[register]);
                         }
                         0x1 => {
-                            println!("{}", self.constants[self.registers[register] as usize]);
+                            println!("{}", self.constants[register as usize]);
                         }
                         _ => {}
                     }
 
+                    self.step();
+
                     println!("print mode({0}) {1}", mode, register);
+                },
+                0x11 => {
+                    let func_idx = self.next() as usize;
+                    let instr = self.functions.get(&self.constants[func_idx]);
+
+                    let mut func = VM::new();
+                    func.load(instr.unwrap());
+                    func.constants = self.constants.clone();
+                    func.registers = self.registers.clone();
+                    func.functions = self.functions.clone();
+
+                    func.run();
+
+                    println!("function_call constant({})", self.constants[func_idx]);
                 },
                 0x15 => {
                     let mut storage: Vec<i32> = Vec::new();
