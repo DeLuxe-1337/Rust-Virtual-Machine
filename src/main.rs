@@ -3,7 +3,10 @@ mod vm;
 use vm::VM;
 use std::io::Read;
 
+use std::time::{Duration, Instant};
+
 fn main() {
+    let now = Instant::now();
     let mut c = VM::new();
 
     let mut file = std::fs::File::open("program.bin").expect("Expected file");
@@ -17,7 +20,9 @@ fn main() {
     c.load(converted.as_slice());
 
     c.run();
-    c.dump(25, 5);
+    //c.dump(25, 5);
+
+    println!("It took {} ms to run!", now.elapsed().as_millis());
 
     std::io::stdin().read(&mut [0]).unwrap();
 }

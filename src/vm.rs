@@ -24,38 +24,38 @@ impl VM {
         }
     }
     pub fn new_constant(&mut self, name: &str) {
-        println!("New constant: {}", name);
+        //println!("New constant: {}", name);
         self.constants.push(name.to_string());
     }
     pub fn dump(&self, to: usize, reg: usize) {
-        println!("--Debug----------------------------------------------------");
-        println!("--Registers--");
+        //println!("--Debug----------------------------------------------------");
+        //println!("--Registers--");
 
         for (i, b) in self.registers.iter().enumerate() {
             if i == reg {
-                println!(";");
+                //println!(";");
                 break;
             }
 
             print!("Register {0} = {1} ", i, b);
         }
 
-        println!("--Memory--");
+        //println!("--Memory--");
 
         for (i, b) in self.memory.iter().enumerate() {
             if i == to {
-                println!(";");
+                //println!(";");
                 break;
             }
 
             print!("{} ", b);
         }
 
-        println!("-----------------------------------------------------------");
+        //println!("-----------------------------------------------------------");
     }
     fn step(&mut self) {
         self.pc += 1;
-        //println!("PC: {}", self.pc);
+        ////println!("PC: {}", self.pc);
     }
     fn next(&mut self) -> i32 {
         if self.pc < self.memory.len() - 1 {
@@ -84,13 +84,13 @@ impl VM {
 
                     self.step();
 
-                    println!("push {1}, reg({0})", register, value);
+                    //println!("push {1}, reg({0})", register, value);
                 },
                 0x3 => {
                     let value = self.next();
                     self.pc = value as usize;
 
-                    println!("jmp 0x{:x}", value);
+                    //println!("jmp 0x{:x}", value);
                 },
                 0x4 => {
                     let jmp = self.next() as usize;
@@ -101,7 +101,7 @@ impl VM {
                         self.pc = jmp;
                     }
 
-                    println!("jmpeq 0x{1:x} if reg({0}) == {2}", reg, jmp, value);
+                    //println!("jmpeq 0x{1:x} if reg({0}) == {2}", reg, jmp, value);
                 },
                 0x5 => {
                     let register_a = self.next() as usize;
@@ -112,7 +112,7 @@ impl VM {
 
                     self.step();
 
-                    println!("add reg({0}), reg({1})", register_a, register_b);
+                    //println!("add reg({0}), reg({1})", register_a, register_b);
                 },
                 0x6 => {
                     let register_a = self.next() as usize;
@@ -123,7 +123,7 @@ impl VM {
 
                     self.step();
 
-                    println!("sub reg({0}), reg({1})", register_a, register_b);
+                    //println!("sub reg({0}), reg({1})", register_a, register_b);
                 },
                 0x7 => {
                     let register_a = self.next() as usize;
@@ -134,7 +134,7 @@ impl VM {
 
                     self.step();
 
-                    println!("mul reg({0}), reg({1})", register_a, register_b);
+                    //println!("mul reg({0}), reg({1})", register_a, register_b);
                 },
                 0x8 => {
                     let register_a = self.next() as usize;
@@ -145,14 +145,14 @@ impl VM {
 
                     self.step();
 
-                    println!("div reg({0}), reg({1})", register_a, register_b);
+                    //println!("div reg({0}), reg({1})", register_a, register_b);
                 },
                 0x9 => {
                     let nxt = self.next();
                     let name = self.constants[nxt as usize].clone();
 
                     let current_pc = self.pc;
-                    println!("fn dec {}", name);
+                    //println!("fn dec {}", name);
 
                     let mut body: Vec<i32> = Vec::new();
                     while self.pc < self.memory.len() {
@@ -183,7 +183,7 @@ impl VM {
 
                     self.step();
 
-                    println!("print mode({0}) {1}", mode, register);
+                    //println!("print mode({0}) {1}", mode, register);
                 },
                 0x11 => {
                     let func_idx = self.next() as usize;
@@ -197,7 +197,9 @@ impl VM {
 
                     func.run();
 
-                    println!("function_call constant({})", self.constants[func_idx]);
+                    self.step();
+
+                    //println!("function_call constant({})", self.constants[func_idx]);
                 },
                 0x15 => {
                     let mut storage: Vec<i32> = Vec::new();
@@ -218,7 +220,7 @@ impl VM {
                     self.new_constant(constant.as_str());
                 },
                 _ => {
-                    println!("Unknown opcode: 0x{:x}", op);
+                    //println!("Unknown opcode: 0x{:x}", op);
                     self.step();
                 }
             }
